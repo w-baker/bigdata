@@ -33,10 +33,10 @@ public class HdfsDao {
     public void copyFile(String local, String desturl) throws IOException {
         Configuration conf = new Configuration();
         if (desturl == null) {
-            desturl = hdfsPath;
+            desturl = gethdfsinfo();
         }
         if (desturl.length() < 1) {
-            desturl = hdfsPath;
+            desturl = gethdfsinfo();
         }
 
 //        conf.set("dfs.blocksize", "4096"); // Michael
@@ -49,7 +49,7 @@ public class HdfsDao {
         }
 
         fs.copyFromLocalFile(new Path(local), new Path(desturl));
-        System.out.println("copy from: " + local + " to " + hdfsPath);
+        System.out.println("copy from: " + local + " to " + gethdfsinfo());
         fs.close();
     }
 
@@ -67,7 +67,7 @@ public class HdfsDao {
     //创建新目录
     public void createdir(String dirpath) {
         try {
-            String dirname = hdfsPath + dirpath;
+            String dirname = gethdfsinfo() + dirpath;
             Configuration conf = new Configuration();
             FileSystem fs = FileSystem.get(URI.create(dirname), conf, "root");
             Path f = new Path(dirname);
@@ -87,7 +87,7 @@ public class HdfsDao {
      * 遍历HDFS上的文件和目录
      */
     public FileStatus[] getDirectoryFromHdfs() {
-        String dst = hdfsPath;
+        String dst = gethdfsinfo();
         Configuration conf = new Configuration();
         // conf.set("fs.default.name", fsdefaultname);
         FileStatus[] list = null;
@@ -140,7 +140,7 @@ public class HdfsDao {
 //        FileSystem fs = FileSystem.get(URI.create(hdfsPath), conf,"root");
         FileSystem fs = null;
         try {
-            fs = FileSystem.get(URI.create(hdfsPath), conf, "root");
+            fs = FileSystem.get(URI.create(gethdfsinfo()), conf, "root");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -154,7 +154,7 @@ public class HdfsDao {
 //        FileSystem fs = FileSystem.get(URI.create(hdfsPath), conf,"root");
         FileSystem fs = null;
         try {
-            fs = FileSystem.get(URI.create(hdfsPath), conf, "root");
+            fs = FileSystem.get(URI.create(gethdfsinfo()), conf, "root");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -167,7 +167,7 @@ public class HdfsDao {
     public void testWrite2() {
         Configuration configuration = new Configuration();
         try {
-            FileSystem fs = FileSystem.get(URI.create(hdfsPath), configuration, "root");
+            FileSystem fs = FileSystem.get(URI.create(gethdfsinfo()), configuration, "root");
 
 //            Path path = new Path("hdfs://192.168.181.201/user/sanglp/hello.txt");
             //public FSDataOutputStream create(Path f, boolean overwrite, int bufferSize, short replication, long blockSize)
