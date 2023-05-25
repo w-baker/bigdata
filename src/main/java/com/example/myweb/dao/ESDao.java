@@ -17,11 +17,18 @@ import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ESDao {
-    private RestClient restClient = RestClient.builder(new HttpHost("192.168.200.101", 9200, "http")).build();
+    @Value("${es.host}")
+    private String esHost;
+    @Value("${es.port}")
+    private int esPort;
+    @Value("${es.scheme}")
+    private String esScheme;
+    private RestClient restClient = RestClient.builder(new HttpHost(esHost, esPort, esScheme)).build();
 
     public List<HDFSObject> query(String keywords) {
         Request request = new Request("GET", "/human_resource/_doc/_search");

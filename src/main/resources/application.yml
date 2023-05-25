@@ -1,0 +1,35 @@
+server:
+  port: 80
+spring:
+  mvc:
+    view:
+      prefix: /WEB-INF/jsp/
+      suffix: .jsp
+    static-path-pattern: /**
+  resources:
+    static-locations: classpath:/
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      driver-class-name: com.mysql.jdbc.Driver
+      url: jdbc:mysql://node01:3306/db_tpcc?useUnicode=true&characterEncoding=utf8&useSSL=false
+      username: root
+      password: 123
+      initial-size: 5
+      min-idle: 5
+      max-active: 20
+      max-wait: 60000
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.commons.JakartaCommonsLoggingImpl
+logging:
+  level:
+    com.example: debug
+es:
+  host: 192.168.200.101
+  port: 9200
+  scheme: http
+hdfs:
+  host: 192.168.200.101
+  port: 8020
+  dir: rt

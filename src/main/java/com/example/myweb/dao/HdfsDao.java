@@ -11,11 +11,19 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.ibatis.annotations.Mapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class HdfsDao {
-    private String hdfsPath = "hdfs://192.168.200.101:8020/rt/";
+    @Value("${hdfs.host}")
+    private String hdfsHost;
+    @Value("${hdfs.port}")
+    private int hdfsPort;
+    @Value("${hdfs.dir}")
+    private String hdfsDir;
+
+    private String hdfsPath = "hdfs://" + hdfsHost + ":" + hdfsPort + "/" + hdfsDir + "/";
 
     public String gethdfsinfo() {
         return this.hdfsPath;
@@ -24,10 +32,12 @@ public class HdfsDao {
 
     public void copyFile(String local, String desturl) throws IOException {
         Configuration conf = new Configuration();
-        if (desturl == null)
+        if (desturl == null) {
             desturl = hdfsPath;
-        if (desturl.length() < 1)
+        }
+        if (desturl.length() < 1) {
             desturl = hdfsPath;
+        }
 
 //        conf.set("dfs.blocksize", "4096"); // Michael
 //        FileSystem fs = FileSystem.get(URI.create(desturl), conf,"root");
@@ -46,7 +56,7 @@ public class HdfsDao {
     public void deleteFromHdfs(String deletePath) {
         Configuration conf = new Configuration();
         try {
-            FileSystem fs = FileSystem.get(URI.create(deletePath), conf,"root");
+            FileSystem fs = FileSystem.get(URI.create(deletePath), conf, "root");
             fs.deleteOnExit(new Path(deletePath));
             fs.close();
         } catch (Exception ex) {
@@ -59,7 +69,7 @@ public class HdfsDao {
         try {
             String dirname = hdfsPath + dirpath;
             Configuration conf = new Configuration();
-            FileSystem fs = FileSystem.get(URI.create(dirname), conf,"root");
+            FileSystem fs = FileSystem.get(URI.create(dirname), conf, "root");
             Path f = new Path(dirname);
             if (!fs.exists(new Path(dirname))) {
                 fs.mkdirs(f);
@@ -82,7 +92,7 @@ public class HdfsDao {
         // conf.set("fs.default.name", fsdefaultname);
         FileStatus[] list = null;
         try {
-            FileSystem fs = FileSystem.get(URI.create(dst), conf,"root");
+            FileSystem fs = FileSystem.get(URI.create(dst), conf, "root");
             list = fs.listStatus(new Path(dst));
             if (list != null) {
                 for (FileStatus f : list) {
@@ -108,7 +118,7 @@ public class HdfsDao {
             if (path.length() > 0) {
                 dst = path;
             }
-            FileSystem fs = FileSystem.get(URI.create(dst), conf,"root");
+            FileSystem fs = FileSystem.get(URI.create(dst), conf, "root");
             list = fs.listStatus(new Path(dst));
             if (list != null)
                 for (FileStatus f : list) {
@@ -158,7 +168,7 @@ public class HdfsDao {
         try {
             FileSystem fs = FileSystem.get(URI.create(hdfsPath), configuration, "root");
 
-            Path path = new Path("hdfs://192.168.181.201/user/sanglp/hello.txt");
+//            Path path = new Path("hdfs://192.168.181.201/user/sanglp/hello.txt");
             //public FSDataOutputStream create(Path f, boolean overwrite, int bufferSize, short replication, long blockSize)
             FSDataOutputStream fsDataOutputStream = fs.create(new Path("/user/sanglp/hadoop/a.txt"), true, 1024, (short) 2, 5);
             fsDataOutputStream.write("how are you".getBytes());
