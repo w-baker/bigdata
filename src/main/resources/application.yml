@@ -12,6 +12,7 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
       driver-class-name: com.mysql.jdbc.Driver
+#      创建db_tpcc数据库，创建一个userinfo表
       url: jdbc:mysql://node01:3306/db_tpcc?useUnicode=true&characterEncoding=utf8&useSSL=false
       username: root
       password: 123

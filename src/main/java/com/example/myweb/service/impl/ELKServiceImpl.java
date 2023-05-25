@@ -1,19 +1,17 @@
 package com.example.myweb.service.impl;
 
 import com.example.myweb.dao.ESDao;
-import com.example.myweb.entity.HDFSFile;
 import com.example.myweb.entity.HDFSObject;
 import com.example.myweb.service.IELKService;
 import com.example.myweb.util.WordUtil;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Service
-public class ELKService implements IELKService {
+public class ELKServiceImpl implements IELKService {
 
     @Resource
     private ESDao esDao;

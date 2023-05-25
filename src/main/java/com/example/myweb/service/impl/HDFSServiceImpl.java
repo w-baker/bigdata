@@ -10,11 +10,10 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class HDFSService implements IHDFSService {
+public class HDFSServiceImpl implements IHDFSService {
 
     @Resource
     private HdfsDao hdfsDao;
