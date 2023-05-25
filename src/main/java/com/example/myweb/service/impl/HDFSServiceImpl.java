@@ -52,7 +52,8 @@ public class HDFSServiceImpl implements IHDFSService {
 
     @Override
     public boolean DeleteFile(String path) {
-        return false;
+        boolean delete = hdfsDao.delete(path);
+        return delete;
     }
 
     @Override

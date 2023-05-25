@@ -1,6 +1,5 @@
 package com.example.myweb.controller;
 
-import com.example.myweb.dao.HdfsDao;
 import com.example.myweb.entity.HDFSObject;
 import com.example.myweb.service.IELKService;
 import com.example.myweb.service.IHDFSService;
@@ -45,17 +44,17 @@ public class FileController {
         return res;
     }
 
-    private String changeFileNmae(String filename) {
+    private String changeFileName(String filename) {
         String fullFileNmae = "";
         fullFileNmae = filename.substring(0, filename.indexOf(".docx"));
-        fullFileNmae += ("_" + String.valueOf((int) (Math.random() * 100000000)) + ".docx");
+        fullFileNmae += ("_" + (int) (Math.random() * 100000000) + ".docx");
 
         return fullFileNmae;
     }
 
-    private String getFullFileNmae(String filename) {
+    private String getFullFileName(String filename) {
         String fullFileNmae = "";
-        String localPath = "E:\\BigData\\Project\\word2\\";
+        String localPath = "E:/BigData/Project/word2/";
         fullFileNmae = localPath + filename;
         return fullFileNmae;
     }
@@ -63,15 +62,14 @@ public class FileController {
     @RequestMapping("upload")
     public String upload(MultipartFile file, HttpSession session, String url, String username) {
         //接收上传文件，读取内容写入ES成功后，再上传到HDFS中。
-        if (file.isEmpty()==false && file.getSize() > 0) {
+        if (!file.isEmpty() && file.getSize() > 0) {
             try {
-//                String realPath = session.getServletContext().getRealPath("upload");
                 String realPath = "E:/doc/upload";
                 String filepath=realPath + "/" + file.getOriginalFilename();
                 String filename=file.getOriginalFilename();
                  file.transferTo(new File(filepath)); //Michael
                 boolean res=hdfssService.UploadHDFSFile(filepath,url);
-                if(res==true){//如果成功上传到hdfs中，就读出文件内容，写入ES中,filename为已经上传到本地的文件路径和名称，url为用户传到hdfs的路径
+                if(res){//如果成功上传到hdfs中，就读出文件内容，写入ES中,filename为已经上传到本地的文件路径和名称，url为用户传到hdfs的路径
                     long filelen=file.getSize();
                     elkService.ReadDocAndInsertES(filepath,filename,url,username,String.valueOf(filelen));
                 }
@@ -80,36 +78,24 @@ public class FileController {
                 System.out.println(e.getMessage());
             }
         }
-//        String fileNmae = "";
-//        String localPath = "E:\\BigData\\Project\\word2\\";
-//        //for(int i=0;i<100000000;i++) {
-//        for (int i = 0; i < 10; i++) {
-//            fileNmae = String.format("%012d.docx", i);
-//            String filepath = localPath + fileNmae;
-//            File filePointer = new File(filepath);
-//            if (!filePointer.exists()) {
-//                continue;
-//            }
-//
-//            boolean res = hdfssService.UploadHDFSFile(filepath, url + "/" + changeFileNmae(fileNmae));
-//            if (res == true) {//如果成功上传到hdfs中，就读出文件内容，写入ES中,filename为已经上传到本地的文件路径和名称，url为用户传到hdfs的路径
-//                long filelen = filePointer.length();
-//                elkService.ReadDocAndInsertES(filepath, changeFileNmae(fileNmae), url, username, String.valueOf(filelen));
-//            }
-//
-//            if (i % 100000 == 0) {
-//                System.out.println("i=" + i);
-//            }
-//        }
-
         try {
             url = URLEncoder.encode(url, "utf8");
         } catch (Exception ex) {
 
         }
 
-        System.out.println("upload is finished");
+        System.out.println("上传成功");
         return "redirect:/readdir?url=" + url;
+    }
+    @RequestMapping("delete")
+    public String delete(String filePath) {
+        String[] paths = filePath.split("/");
+        String pageUrl = filePath.replace("/" + paths[paths.length-1],"");
+        // 从hdfs中删除文件
+        hdfssService.DeleteFile(filePath);
+        // 从ES中删除
+
+        return "redirect:/readdir?url=" + pageUrl;
     }
 
     @RequestMapping("download")
@@ -117,7 +103,6 @@ public class FileController {
         response.setContentType("application/force-download");
         response.setHeader("content-type", "application/octet-stream");
         response.setContentType("application/octet-stream");
-        //response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
         try {
             String tmp = URLDecoder.decode(fileName, "utf-8");
             tmp = tmp.substring(fileName.lastIndexOf("/") + 1);
@@ -134,7 +119,6 @@ public class FileController {
             bis = hdfssService.getFileInputStreamForPath(fileName);
             int i = bis.read(buff);
             while (i != -1) {
-//                os.write(buff, 0, buff.length);
                 os.write(buff, 0, i);
                 os.flush();
                 i = bis.read(buff);

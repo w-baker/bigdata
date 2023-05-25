@@ -38,5 +38,4 @@ public class Index {
         model.addAttribute("hdfsobjectlist", hdfsobjectlist);
         return res;
     }
-
 }

@@ -177,5 +177,27 @@ public class HdfsDao {
             e.printStackTrace();
         }
     }
+
+    public boolean delete(String filePath){
+        if (filePath == null){
+            filePath = gethdfsinfo();
+        }
+        String realPath = filePath.replace(gethdfsinfo(),"");
+        FileSystem fs = null;
+        try {
+            fs = FileSystem.get(URI.create(gethdfsinfo()), new Configuration(), "root");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            boolean delete = fs.delete(new Path(filePath), true);
+
+            System.out.println(delete);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        return true;
+    }
 }
 
