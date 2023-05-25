@@ -23,10 +23,10 @@ public class HdfsDao {
     @Value("${hdfs.dir}")
     private String hdfsDir;
 
-    private String hdfsPath = "hdfs://" + hdfsHost + ":" + hdfsPort + "/" + hdfsDir + "/";
+    private String hdfsPath;
 
     public String gethdfsinfo() {
-        return this.hdfsPath;
+        return "hdfs://" + hdfsHost + ":" + hdfsPort + "/" + hdfsDir + "/";
     }
 
 
@@ -114,16 +114,17 @@ public class HdfsDao {
         try {
             Configuration conf = new Configuration();
             // conf.set("fs.default.name", fsdefaultname);
-            String dst = hdfsPath;
+            String dst = gethdfsinfo();
             if (path.length() > 0) {
                 dst = path;
             }
             FileSystem fs = FileSystem.get(URI.create(dst), conf, "root");
             list = fs.listStatus(new Path(dst));
-            if (list != null)
+            if (list != null) {
                 for (FileStatus f : list) {
                     System.out.printf("name: %s, folder: %s, size: %d\n", f.getPath().getName(), f.isDir(), f.getLen());
                 }
+            }
             fs.close();
 
         } catch (Exception ex) {
