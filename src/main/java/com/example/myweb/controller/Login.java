@@ -6,6 +6,7 @@ import com.example.myweb.service.IUserService;
 import org.apache.hadoop.fs.FileStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.example.myweb.entity.UserInfo;
 
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Controller
+@CrossOrigin
 public class Login {
     @Resource
     private IUserService userService;

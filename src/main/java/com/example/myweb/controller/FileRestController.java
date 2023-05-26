@@ -3,23 +3,29 @@ package com.example.myweb.controller;
 import com.example.myweb.entity.HDFSObject;
 import com.example.myweb.service.IELKService;
 import com.example.myweb.service.IHDFSService;
+import com.example.myweb.util.Result;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.*;
+import javax.ws.rs.GET;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.List;
 
 
-@Controller
-public class FileController {
+@RestController
+@RequestMapping("page")
+@CrossOrigin
+public class FileRestController {
 
     @Resource
     private IHDFSService hdfssService;
@@ -27,21 +33,23 @@ public class FileController {
     @Resource
     private IELKService elkService;
 
-    @RequestMapping("/readdir")//接收用户提交登录页面。
-    public String ReadDir(String url, Model model) {
-        String res = "index";
-        if (url != null) {
-            try {
-                List<HDFSObject> hdfsobjectlist = hdfssService.ReadHDFSObject(url);
-                model.addAttribute("hdfsobjectlist", hdfsobjectlist);
-                String currenturl = url.substring(url.indexOf("rt") + 2);
-                model.addAttribute("currenturl", currenturl);
-                model.addAttribute("fullurl", url);
-            } catch (Exception ex) {
+    Result<Object> result = new Result<>();
 
-            }
+    @GetMapping("/readdir")//接收用户提交登录页面。
+    public Result ReadDir(String url) {
+        if (url == null || url.length() == 0){
+            url = "hdfs://192.168.200.101:8020/rt";
         }
-        return res;
+        try {
+            List<HDFSObject> hdfsobjectlist = hdfssService.ReadHDFSObject(url);
+            result.setCode(200);
+            result.setData(hdfsobjectlist);
+            String currenturl = url.substring(url.indexOf("rt") + 2);
+        } catch (Exception ex) {
+            result.setCode(400);
+            result.setMsg(ex.getMessage());
+        }
+        return result;
     }
 
     private String changeFileName(String filename) {
@@ -59,8 +67,9 @@ public class FileController {
         return fullFileNmae;
     }
 
-    @RequestMapping("upload")
-    public String upload(MultipartFile file, HttpSession session, String url, String username) {
+    @PostMapping("upload")
+    public Result upload(MultipartFile file, String url, String username) {
+        Result<Object> result = new Result<>();
         //接收上传文件，读取内容写入ES成功后，再上传到HDFS中。
         if (!file.isEmpty() && file.getSize() > 0) {
             try {
@@ -74,33 +83,36 @@ public class FileController {
                     elkService.ReadDocAndInsertES(filepath,filename,url,username,String.valueOf(filelen));
                 }
             } catch (IOException e) {
-                System.out.println("error");
-                System.out.println(e.getMessage());
+                result.setCode(400);
+                result.setMsg(e.getMessage());
             }
         }
         try {
             url = URLEncoder.encode(url, "utf8");
         } catch (Exception ex) {
-
+            result.setCode(400);
+            result.setMsg(ex.getMessage());
         }
 
         System.out.println("上传成功");
-        return "redirect:/readdir?url=" + url;
+        result.setCode(200);
+        result.setMsg("上传成功");
+        return result;
     }
-    @RequestMapping("delete")
-    public String delete(String filePath) {
-        String[] paths = filePath.split("/");
-        String pageUrl = filePath.replace("/" + paths[paths.length-1],"");
+    @GetMapping("delete")
+    public Result delete(String filePath) {
         // 从ES中删除
         elkService.deleteInfo(filePath);
 
         // 从hdfs中删除文件
         hdfssService.DeleteFile(filePath);
-        return "redirect:/readdir?url=" + pageUrl;
+        result.setCode(200);
+        result.setMsg("成功");
+        return result;
     }
 
     @RequestMapping("download")
-    public void download1(HttpSession session, @RequestParam String fileName, HttpServletResponse response) {
+    public void download(@RequestParam String fileName, HttpServletResponse response) {
         response.setContentType("application/force-download");
         response.setHeader("content-type", "application/octet-stream");
         response.setContentType("application/octet-stream");

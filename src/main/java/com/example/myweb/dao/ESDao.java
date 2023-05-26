@@ -76,7 +76,10 @@ public class ESDao {
         String fileName = split[split.length-1];
 
         // 获取文件位置位置
-        String fileUrl = filePath.replace("/" + fileName,"");
+        String fileUrl = null;
+        if (split.length != 1){
+            fileUrl = filePath.replace("/" + fileName,"");
+        }
 
 
         Request request = new Request("POST", "/human_resource/_delete_by_query");

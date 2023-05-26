@@ -26,5 +26,8 @@ public interface IUsersDao {
 
     @Update("update userinfo set password=#{password} where userid=#{userid}")
     int modifyUser_passByUserid(UserInfo user);
-
+    @Insert("insert into userinfo(username,password) value(#{username},#{password})")
+    Integer addUser(UserInfo userInfo);
+@Select("select * from userinfo where username = #{username};")
+    UserInfo findByUsername(String username);
 }

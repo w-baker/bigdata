@@ -42,4 +42,12 @@ public class UserServiceImpl implements IUserService {
         return userDao.modifyUser_passByUserid(user);
     }
 
+    @Override
+    public Integer register(UserInfo userInfo) {
+        UserInfo userInfo1 = userDao.findByUsername(userInfo.getUsername());
+        if (userInfo1 != null){
+            return 3;
+        }
+        return userDao.addUser(userInfo);
+    }
 }

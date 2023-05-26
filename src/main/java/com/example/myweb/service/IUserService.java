@@ -16,4 +16,6 @@ public interface IUserService {
     int removeUserByUserid(int userid);
 
     int modifyUser_passByUserid(UserInfo user);
+
+    Integer register(UserInfo userInfo);
 }
