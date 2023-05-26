@@ -12,4 +12,5 @@ public interface IELKService {
     //从ES集群中查找文档内容
     public List<HDFSObject> queryinfo(String querykeywords);
 
+    void deleteInfo(String filePath);
 }

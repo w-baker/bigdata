@@ -53,4 +53,9 @@ public class ELKServiceImpl implements IELKService {
         List<HDFSObject> filelist = esDao.query(querykeywords);
         return filelist;
     }
+
+    @Override
+    public void deleteInfo(String filePath) {
+        esDao.delete(filePath);
+    }
 }

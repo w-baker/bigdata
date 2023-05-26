@@ -18,7 +18,6 @@ import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -70,16 +69,36 @@ public class ESDao {
         return filelist;
     }
 
-    private void delete() {
-        Request request = new Request("POST", "student2/_delete_by_query");
-        String indexscript = "{\r\n" +
-                "  \"query\": {\r\n" +
-                "    \"term\": {\r\n" +
-                "      \"name\": \"aaa\"\r\n" +
-                "    }\r\n" +
-                "  }\r\n" +
+    public void delete(String filePath) {
+
+        String[] split = filePath.split("/");
+        // 获取文件名字
+        String fileName = split[split.length-1];
+
+        // 获取文件位置位置
+        String fileUrl = filePath.replace("/" + fileName,"");
+
+
+        Request request = new Request("POST", "/human_resource/_delete_by_query");
+        String indexScript = "{\n" +
+                "  \"query\":{\n" +
+                "    \"bool\":{\n" +
+                "      \"must\":[\n" +
+                "        {\n" +
+                "          \"term\":{\n" +
+                "            \"filename.keyword\":\"" + fileName+"\"\n" +
+                "          }\n" +
+                "        },\n" +
+                "        {\n" +
+                "          \"term\":{\n" +
+                "            \"hdfsurl.keyword\":\"" + fileUrl + "\"\n" +
+                "          }\n" +
+                "        }\n" +
+                "      ]\n" +
+                "    }\n" +
+                "  }\n" +
                 "}";
-        request.setEntity(new NStringEntity(indexscript, ContentType.APPLICATION_JSON));
+        request.setEntity(new NStringEntity(indexScript, ContentType.APPLICATION_JSON));
         try {
             Response response = restClient.performRequest(request);
             RequestLine requestLine = response.getRequestLine();
@@ -91,6 +110,7 @@ public class ESDao {
             System.out.println(responseBody);
             restClient.close();
         } catch (IOException e) {
+            System.out.println(e.getMessage());
             e.printStackTrace();
         }
     }

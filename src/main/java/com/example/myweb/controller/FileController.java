@@ -91,10 +91,11 @@ public class FileController {
     public String delete(String filePath) {
         String[] paths = filePath.split("/");
         String pageUrl = filePath.replace("/" + paths[paths.length-1],"");
+        // 从ES中删除
+        elkService.deleteInfo(filePath);
+
         // 从hdfs中删除文件
         hdfssService.DeleteFile(filePath);
-        // 从ES中删除
-
         return "redirect:/readdir?url=" + pageUrl;
     }
 
