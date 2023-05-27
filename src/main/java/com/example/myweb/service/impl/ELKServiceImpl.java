@@ -22,12 +22,6 @@ public class ELKServiceImpl implements IELKService {
         String info = WordUtil.readWord(filepath);
         String fileinfo = info;
 
-        //把不相关的多余字符替换掉，如替换掉换行符和空格
-//        fileinfo = fileinfo.replace("\t", "");
-//        fileinfo = fileinfo.replaceAll("(\\r\\n|\\n|\\n\\r)", "");
-//        fileinfo = fileinfo.replace(" ", "");
-//        fileinfo = fileinfo.replace("\"", "");
-
         fileinfo = fileinfo.replace("\t", " ");
         fileinfo = fileinfo.replaceAll("(\\r\\n|\\n|\\n\\r)", " ");
         fileinfo = fileinfo.replace("\"", "");
@@ -57,5 +51,10 @@ public class ELKServiceImpl implements IELKService {
     @Override
     public void deleteInfo(String filePath) {
         esDao.delete(filePath);
+    }
+
+    @Override
+    public  String review(String filepath){
+        return esDao.review(filepath);
     }
 }

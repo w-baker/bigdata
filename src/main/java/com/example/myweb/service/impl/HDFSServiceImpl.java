@@ -11,6 +11,7 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class HDFSServiceImpl implements IHDFSService {
@@ -44,6 +45,12 @@ public class HDFSServiceImpl implements IHDFSService {
         List<HDFSObject> hdfsobjects = DTOTools.FileStatusConvertHDFSObjectList(filelist);
         return hdfsobjects;
     }
+
+    @Override
+    public Map<String,Long> GetStatus() {
+        return hdfsDao.getStatus();
+    }
+
 
     @Override
     public boolean CreateDir() {

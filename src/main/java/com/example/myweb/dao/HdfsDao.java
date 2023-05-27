@@ -4,12 +4,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -51,6 +50,26 @@ public class HdfsDao {
         fs.copyFromLocalFile(new Path(local), new Path(desturl));
         System.out.println("copy from: " + local + " to " + gethdfsinfo());
         fs.close();
+    }
+    public Map<String,Long> getStatus(){
+        Configuration conf = new Configuration();
+        FileSystem fs = null;
+        Map<String,Long> map = new HashMap<>();
+        try{
+            fs = FileSystem.get(new URI(hdfsHost),conf);
+            FsStatus fsStatus = fs.getStatus();
+            long capacity = fsStatus.getCapacity();
+            long remaining = fsStatus.getRemaining();
+            long used = fsStatus.getUsed();
+
+            map.put("total",capacity/1024/1024/1024);
+            map.put("remaining",remaining/1024/1024/1024);
+            map.put("used",used/1024/1024/1024);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return map;
     }
 
     public void deleteFromHdfs(String deletePath) {

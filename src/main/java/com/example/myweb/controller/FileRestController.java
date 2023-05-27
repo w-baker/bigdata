@@ -20,6 +20,7 @@ import java.io.OutputStream;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -82,23 +83,31 @@ public class FileRestController {
                     long filelen=file.getSize();
                     elkService.ReadDocAndInsertES(filepath,filename,url,username,String.valueOf(filelen));
                 }
+                result.setCode(200);
+                result.setMsg("上传成功");
             } catch (IOException e) {
                 result.setCode(400);
                 result.setMsg(e.getMessage());
             }
         }
-        try {
-            url = URLEncoder.encode(url, "utf8");
-        } catch (Exception ex) {
-            result.setCode(400);
-            result.setMsg(ex.getMessage());
-        }
-
-        System.out.println("上传成功");
-        result.setCode(200);
-        result.setMsg("上传成功");
         return result;
     }
+
+    @GetMapping("getstatus")
+    public Result getstatus(){
+        Result<Object> result = new Result<>();
+        Map<String, Long> hdfsstatus = null;
+        try {
+            hdfsstatus = hdfssService.GetStatus();
+        }catch (Exception e){
+            result.setCode(400);
+            result.setMsg(e.getMessage());
+        }
+        result.setCode(200);
+        result.setData(hdfsstatus);
+        return result;
+    }
+
     @GetMapping("delete")
     public Result delete(String filePath) {
         // 从ES中删除
@@ -107,11 +116,29 @@ public class FileRestController {
         // 从hdfs中删除文件
         hdfssService.DeleteFile(filePath);
         result.setCode(200);
-        result.setMsg("成功");
+        result.setMsg("删除成功");
+        return result;
+    }
+    @GetMapping("preview")
+    public Result preview(String filepath){
+        Result<Object> result = new Result<>();
+        String res =null;
+        try{
+            res = elkService.review(filepath);
+            result.setCode(200);
+            result.setData(res);
+        }catch (Exception e){
+            result.setCode(400);
+            result.setMsg(e.getMessage());
+        }
+        if (res==null){
+            result.setCode(200);
+            result.setMsg("文件没有数据");
+        }
         return result;
     }
 
-    @RequestMapping("download")
+    @GetMapping("download")
     public void download(@RequestParam String fileName, HttpServletResponse response) {
         response.setContentType("application/force-download");
         response.setHeader("content-type", "application/octet-stream");

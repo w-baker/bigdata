@@ -13,4 +13,6 @@ public interface IELKService {
     public List<HDFSObject> queryinfo(String querykeywords);
 
     void deleteInfo(String filePath);
+
+    String review(String filepath);
 }

@@ -8,6 +8,7 @@ import org.apache.hadoop.fs.FileStatus;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 public interface IHDFSService {
     public FileStatus[] ReadHDFS();
@@ -25,5 +26,7 @@ public interface IHDFSService {
     public boolean UploadHDFSFile(String local, String desturl);
 
     public InputStream getFileInputStreamForPath(String strpath) throws IOException;
+
+    Map<String,Long> GetStatus();
 
 }

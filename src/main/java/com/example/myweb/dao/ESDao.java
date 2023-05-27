@@ -69,6 +69,56 @@ public class ESDao {
         return filelist;
     }
 
+    public String review(String filepath){
+        String res = null;
+        String[] split = filepath.split("/");
+        // 获取文件名字
+        String fileName = split[split.length-1];
+
+        String fileUrl = null;
+        if (split.length != 1){
+            fileUrl = filepath.replace("/" + fileName,"");
+
+        }
+        Request request = new Request("POST", "/human_resource/_search");
+        String indexScript = "{\n" +
+                "  \"query\":{\n" +
+                "    \"bool\":{\n" +
+                "      \"must\":[\n" +
+                "        {\n" +
+                "          \"term\":{\n" +
+                "            \"filename.keyword\":\"" + fileName+"\"\n" +
+                "          }\n" +
+                "        },\n" +
+                "        {\n" +
+                "          \"term\":{\n" +
+                "            \"hdfsurl.keyword\":\"" + fileUrl + "\"\n" +
+                "          }\n" +
+                "        }\n" +
+                "      ]\n" +
+                "    }\n" +
+                "  }\n" +
+                "}";
+        request.setEntity(new NStringEntity(indexScript, ContentType.APPLICATION_JSON));
+        try{
+            Response response = restClient.performRequest(request);
+            String responseBody = EntityUtils.toString(response.getEntity());
+            JSONObject jsonObject = JSONObject.parseObject(responseBody);
+            String str = jsonObject.getJSONObject("hits").get("hits").toString();
+            JSONArray arr = JSONArray.parseArray(str);
+
+            jsonObject = arr.getJSONObject(0).getJSONObject("_source");
+            res  = (String) jsonObject.get("fileinfo");
+
+        } catch (Exception e) {
+            res="数据查询失败";
+        }
+        if (res == null){
+            return null;
+        }
+        return res;
+    }
+
     public void delete(String filePath) {
 
         String[] split = filePath.split("/");
@@ -111,7 +161,7 @@ public class ESDao {
             String responseBody = EntityUtils.toString(response.getEntity());
             System.out.println(requestLine.toString() + "," + host.getHostName() + "," + statusCode + "," + headers.toString());
             System.out.println(responseBody);
-            restClient.close();
+//            restClient.close();
         } catch (IOException e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
@@ -165,7 +215,7 @@ public class ESDao {
             String responseBody = EntityUtils.toString(response.getEntity());
             System.out.println(requestLine.toString() + "," + host.getHostName() + "," + statusCode + "," + headers.toString());
             System.out.println(responseBody);
-            restClient.close();
+//            restClient.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -182,7 +232,7 @@ public class ESDao {
             String responseBody = EntityUtils.toString(response.getEntity());
             System.out.println(requestLine.toString() + "," + host.getHostName() + "," + statusCode + "," + headers.toString());
             System.out.println(responseBody);
-            restClient.close();
+//            restClient.close();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
